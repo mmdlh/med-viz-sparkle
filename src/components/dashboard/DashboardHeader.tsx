@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Activity } from "lucide-react";
+import NavigationMenu from "./NavigationMenu";
 
 const DashboardHeader = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -16,7 +17,7 @@ const DashboardHeader = () => {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
-      weekday: 'long'
+      weekday: 'short'
     });
   };
 
@@ -30,33 +31,37 @@ const DashboardHeader = () => {
   };
 
   return (
-    <header className="header-glow h-20 flex items-center justify-between px-8 relative">
-      {/* Left decoration */}
-      <div className="flex items-center gap-4">
-        <div className="text-muted-foreground text-sm">
+    <header className="header-glow relative">
+      {/* Top row - Title */}
+      <div className="h-16 flex items-center justify-between px-6">
+        {/* Left - Date */}
+        <div className="text-muted-foreground text-sm min-w-[140px]">
           {formatDate(currentTime)}
         </div>
-      </div>
 
-      {/* Center title */}
-      <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
-        <div className="flex items-center gap-3">
-          <Activity className="w-8 h-8 text-primary animate-pulse-glow" />
-          <h1 className="font-display text-2xl md:text-3xl font-bold tracking-wider text-glow">
-            医疗数据分析平台
-          </h1>
-          <Activity className="w-8 h-8 text-accent animate-pulse-glow" />
+        {/* Center title */}
+        <div className="flex flex-col items-center">
+          <div className="flex items-center gap-3">
+            <Activity className="w-6 h-6 text-primary animate-pulse-glow" />
+            <h1 className="font-display text-xl md:text-2xl font-bold tracking-wider text-glow">
+              医疗数据分析平台
+            </h1>
+            <Activity className="w-6 h-6 text-accent animate-pulse-glow" />
+          </div>
+          <div className="text-[10px] text-muted-foreground tracking-widest">
+            MEDICAL DATA ANALYTICS PLATFORM
+          </div>
         </div>
-        <div className="text-xs text-muted-foreground tracking-widest mt-1">
-          MEDICAL DATA ANALYTICS PLATFORM
-        </div>
-      </div>
 
-      {/* Right time display */}
-      <div className="flex items-center gap-4">
-        <div className="font-display text-2xl text-primary text-glow">
+        {/* Right - Time */}
+        <div className="font-display text-xl text-primary text-glow min-w-[140px] text-right">
           {formatTime(currentTime)}
         </div>
+      </div>
+
+      {/* Navigation row */}
+      <div className="h-12 flex items-center justify-center border-t border-border/30 bg-background/30 backdrop-blur-sm">
+        <NavigationMenu />
       </div>
 
       {/* Bottom decorative line */}
