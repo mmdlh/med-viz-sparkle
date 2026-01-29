@@ -1,15 +1,15 @@
-import { Bed, UserPlus, UserMinus, Clock, Activity, HeartPulse } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LineChart, Line, PieChart, Pie, Cell } from "recharts";
+import { Bed, UserPlus, UserMinus, Clock, Activity, HeartPulse, AlertCircle } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
 import PageLayout from "@/components/dashboard/PageLayout";
 import StatCard from "@/components/dashboard/StatCard";
 
 const wardData = [
-  { name: "内科病区", total: 120, occupied: 108 },
-  { name: "外科病区", total: 100, occupied: 92 },
-  { name: "骨科病区", total: 60, occupied: 54 },
-  { name: "妇产科", total: 80, occupied: 68 },
-  { name: "儿科病区", total: 50, occupied: 42 },
-  { name: "ICU", total: 30, occupied: 28 },
+  { name: "内科病区", total: 120, occupied: 108, color: "hsl(195, 90%, 55%)" },
+  { name: "外科病区", total: 100, occupied: 92, color: "hsl(175, 85%, 50%)" },
+  { name: "骨科病区", total: 60, occupied: 54, color: "hsl(40, 90%, 55%)" },
+  { name: "妇产科", total: 80, occupied: 68, color: "hsl(330, 70%, 55%)" },
+  { name: "儿科病区", total: 50, occupied: 42, color: "hsl(150, 70%, 50%)" },
+  { name: "ICU", total: 30, occupied: 28, color: "hsl(0, 65%, 55%)" },
 ];
 
 const admissionTrend = [
@@ -23,25 +23,35 @@ const admissionTrend = [
 ];
 
 const patientTypeData = [
-  { name: "普通病房", value: 520, color: "hsl(195, 100%, 50%)" },
-  { name: "重症监护", value: 85, color: "hsl(0, 70%, 55%)" },
-  { name: "日间病房", value: 120, color: "hsl(175, 100%, 45%)" },
-  { name: "康复病房", value: 95, color: "hsl(150, 80%, 45%)" },
+  { name: "普通病房", value: 520, color: "hsl(195, 90%, 55%)" },
+  { name: "重症监护", value: 85, color: "hsl(0, 65%, 55%)" },
+  { name: "日间病房", value: 120, color: "hsl(175, 85%, 50%)" },
+  { name: "康复病房", value: 95, color: "hsl(150, 70%, 50%)" },
 ];
 
-const stayDuration = [
-  { range: "1-3天", count: 180 },
-  { range: "4-7天", count: 320 },
-  { range: "8-14天", count: 210 },
-  { range: "15-30天", count: 85 },
-  { range: ">30天", count: 25 },
+const recentPatients = [
+  { name: "张**", ward: "内科病区", bed: "A-12", days: 3, status: "稳定" },
+  { name: "李**", ward: "外科病区", bed: "B-08", days: 5, status: "恢复中" },
+  { name: "王**", ward: "ICU", bed: "I-02", days: 1, status: "观察中" },
+  { name: "刘**", ward: "骨科病区", bed: "C-15", days: 7, status: "待出院" },
+  { name: "陈**", ward: "妇产科", bed: "D-06", days: 2, status: "稳定" },
 ];
 
 const InpatientPage = () => {
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "稳定": return "text-success bg-success/10";
+      case "恢复中": return "text-primary bg-primary/10";
+      case "观察中": return "text-warning bg-warning/10";
+      case "待出院": return "text-accent bg-accent/10";
+      default: return "text-muted-foreground";
+    }
+  };
+
   return (
     <PageLayout>
-      {/* Stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      {/* 指标卡片 */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         <div className="animate-fade-in">
           <StatCard title="在院患者" value={892} suffix="人" icon={Bed} color="primary" />
         </div>
@@ -62,103 +72,117 @@ const InpatientPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Ward occupancy */}
-        <div className="chart-container animate-fade-in">
-          <div className="chart-title">各病区床位使用情况</div>
-          <div className="space-y-4 mt-4">
-            {wardData.map((ward) => {
-              const percentage = (ward.occupied / ward.total) * 100;
-              const getColor = (pct: number) => {
-                if (pct >= 90) return "hsl(0, 70%, 55%)";
-                if (pct >= 70) return "hsl(40, 95%, 55%)";
-                return "hsl(150, 80%, 45%)";
-              };
-              return (
-                <div key={ward.name} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{ward.name}</span>
-                    <span>
-                      <span style={{ color: getColor(percentage) }}>{ward.occupied}</span>
-                      <span className="text-muted-foreground">/{ward.total}</span>
-                    </span>
+      {/* 左右分栏：左侧病区卡片，右侧图表 */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* 左侧：病区床位卡片网格 - 占2列 */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="chart-container animate-fade-in h-full">
+            <div className="chart-title">病区床位概览</div>
+            <div className="grid grid-cols-2 gap-3 mt-3">
+              {wardData.map((ward, index) => {
+                const percentage = (ward.occupied / ward.total) * 100;
+                return (
+                  <div 
+                    key={ward.name} 
+                    className="p-3 rounded-lg bg-secondary/40 border border-border/30 animate-fade-in"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">{ward.name}</span>
+                      {percentage >= 90 && <AlertCircle className="w-4 h-4 text-destructive" />}
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <span className="text-2xl font-bold" style={{ color: ward.color }}>{ward.occupied}</span>
+                        <span className="text-muted-foreground text-sm">/{ward.total}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-muted-foreground">使用率</div>
+                        <div className="text-sm font-medium" style={{ color: percentage >= 90 ? 'hsl(0, 65%, 55%)' : percentage >= 70 ? 'hsl(40, 90%, 55%)' : 'hsl(150, 70%, 50%)' }}>
+                          {percentage.toFixed(0)}%
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden mt-2">
+                      <div 
+                        className="h-full rounded-full transition-all duration-1000"
+                        style={{ width: `${percentage}%`, backgroundColor: ward.color }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                    <div 
-                      className="h-full rounded-full transition-all duration-1000"
-                      style={{ 
-                        width: `${percentage}%`,
-                        backgroundColor: getColor(percentage),
-                        boxShadow: `0 0 10px ${getColor(percentage)}40`
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Admission/Discharge trend */}
-        <div className="chart-container animate-fade-in" style={{ animationDelay: "100ms" }}>
-          <div className="chart-title">近7日入出院趋势</div>
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={admissionTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(200, 60%, 20%)" opacity={0.3} />
-              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: 'hsl(200, 20%, 60%)', fontSize: 12 }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: 'hsl(200, 20%, 60%)', fontSize: 12 }} />
-              <Tooltip contentStyle={{ backgroundColor: 'hsl(220, 40%, 10%)', border: '1px solid hsl(200, 60%, 25%)' }} />
-              <Line type="monotone" dataKey="入院" stroke="hsl(195, 100%, 50%)" strokeWidth={2} dot={{ fill: 'hsl(195, 100%, 50%)' }} />
-              <Line type="monotone" dataKey="出院" stroke="hsl(150, 80%, 45%)" strokeWidth={2} dot={{ fill: 'hsl(150, 80%, 45%)' }} />
-            </LineChart>
-          </ResponsiveContainer>
-          <div className="flex justify-center gap-6 mt-2">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-primary" />
-              <span className="text-xs text-muted-foreground">入院</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-success" />
-              <span className="text-xs text-muted-foreground">出院</span>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Patient type distribution */}
-        <div className="chart-container animate-fade-in" style={{ animationDelay: "200ms" }}>
-          <div className="chart-title">患者类型分布</div>
-          <ResponsiveContainer width="100%" height={280}>
-            <PieChart>
-              <Pie data={patientTypeData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={2} dataKey="value">
-                {patientTypeData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+        {/* 右侧：图表和列表 - 占3列 */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* 入出院趋势 */}
+          <div className="chart-container animate-fade-in" style={{ animationDelay: "100ms" }}>
+            <div className="chart-title">近7日入出院趋势</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={admissionTrend}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(200, 40%, 28%)" opacity={0.4} />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: 'hsl(200, 25%, 65%)', fontSize: 12 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'hsl(200, 25%, 65%)', fontSize: 12 }} />
+                <Tooltip contentStyle={{ backgroundColor: 'hsl(220, 30%, 16%)', border: '1px solid hsl(200, 40%, 30%)' }} />
+                <Line type="monotone" dataKey="入院" stroke="hsl(195, 90%, 55%)" strokeWidth={2} dot={{ fill: 'hsl(195, 90%, 55%)', r: 4 }} />
+                <Line type="monotone" dataKey="出院" stroke="hsl(150, 70%, 50%)" strokeWidth={2} dot={{ fill: 'hsl(150, 70%, 50%)', r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+            <div className="flex justify-center gap-6 mt-2">
+              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-primary" /><span className="text-xs text-muted-foreground">入院</span></div>
+              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-success" /><span className="text-xs text-muted-foreground">出院</span></div>
+            </div>
+          </div>
+
+          {/* 下方分两栏 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* 患者类型 */}
+            <div className="chart-container animate-fade-in" style={{ animationDelay: "200ms" }}>
+              <div className="chart-title">患者类型</div>
+              <ResponsiveContainer width="100%" height={180}>
+                <PieChart>
+                  <Pie data={patientTypeData} cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={3} dataKey="value">
+                    {patientTypeData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(220, 30%, 16%)', border: '1px solid hsl(200, 40%, 30%)' }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex flex-wrap justify-center gap-2">
+                {patientTypeData.map((item) => (
+                  <div key={item.name} className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-xs text-muted-foreground">{item.name}</span>
+                  </div>
                 ))}
-              </Pie>
-              <Tooltip contentStyle={{ backgroundColor: 'hsl(220, 40%, 10%)', border: '1px solid hsl(200, 60%, 25%)' }} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="flex flex-wrap justify-center gap-3 mt-2">
-            {patientTypeData.map((item) => (
-              <div key={item.name} className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-xs text-muted-foreground">{item.name}</span>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Stay duration */}
-        <div className="chart-container animate-fade-in" style={{ animationDelay: "300ms" }}>
-          <div className="chart-title">住院时长分布</div>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={stayDuration}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(200, 60%, 20%)" opacity={0.3} />
-              <XAxis dataKey="range" axisLine={false} tickLine={false} tick={{ fill: 'hsl(200, 20%, 60%)', fontSize: 11 }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: 'hsl(200, 20%, 60%)', fontSize: 12 }} />
-              <Tooltip contentStyle={{ backgroundColor: 'hsl(220, 40%, 10%)', border: '1px solid hsl(200, 60%, 25%)' }} />
-              <Bar dataKey="count" fill="hsl(175, 100%, 45%)" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+            {/* 最近入院 */}
+            <div className="chart-container animate-fade-in" style={{ animationDelay: "300ms" }}>
+              <div className="chart-title">最近入院患者</div>
+              <div className="space-y-2 mt-3">
+                {recentPatients.map((patient, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30 text-sm">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium">{patient.name}</span>
+                      <span className="text-muted-foreground text-xs">{patient.ward}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">{patient.days}天</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusStyle(patient.status)}`}>
+                        {patient.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </PageLayout>
