@@ -7,48 +7,48 @@
 
 @layer base {
   :root {
-    /* Dark tech theme - always dark */
-    --background: 220 30% 6%;
-    --foreground: 200 100% 95%;
+    /* Lighter dark tech theme */
+    --background: 220 25% 12%;
+    --foreground: 200 60% 95%;
 
-    --card: 220 40% 10%;
-    --card-foreground: 200 100% 95%;
+    --card: 220 30% 16%;
+    --card-foreground: 200 60% 95%;
 
-    --popover: 220 40% 10%;
-    --popover-foreground: 200 100% 95%;
+    --popover: 220 30% 16%;
+    --popover-foreground: 200 60% 95%;
 
-    --primary: 195 100% 50%;
-    --primary-foreground: 220 30% 6%;
+    --primary: 195 90% 55%;
+    --primary-foreground: 220 30% 8%;
 
-    --secondary: 220 40% 15%;
-    --secondary-foreground: 200 100% 95%;
+    --secondary: 220 30% 22%;
+    --secondary-foreground: 200 60% 95%;
 
-    --muted: 220 30% 18%;
-    --muted-foreground: 200 20% 60%;
+    --muted: 220 25% 25%;
+    --muted-foreground: 200 25% 65%;
 
-    --accent: 175 100% 45%;
-    --accent-foreground: 220 30% 6%;
+    --accent: 175 85% 50%;
+    --accent-foreground: 220 30% 8%;
 
-    --destructive: 0 70% 55%;
+    --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 150 80% 45%;
-    --success-foreground: 220 30% 6%;
+    --success: 150 70% 50%;
+    --success-foreground: 220 30% 8%;
 
-    --warning: 40 95% 55%;
-    --warning-foreground: 220 30% 6%;
+    --warning: 40 90% 55%;
+    --warning-foreground: 220 30% 8%;
 
-    --border: 200 60% 25%;
-    --input: 220 40% 15%;
-    --ring: 195 100% 50%;
+    --border: 200 40% 30%;
+    --input: 220 30% 20%;
+    --ring: 195 90% 55%;
 
     --radius: 0.5rem;
 
     /* Custom medical dashboard tokens */
-    --glow-primary: 195 100% 50%;
-    --glow-accent: 175 100% 45%;
-    --gradient-start: 220 60% 8%;
-    --gradient-end: 200 50% 4%;
+    --glow-primary: 195 90% 55%;
+    --glow-accent: 175 85% 50%;
+    --gradient-start: 220 40% 14%;
+    --gradient-end: 200 35% 10%;
   }
 
   .dark {
@@ -93,11 +93,11 @@
   /* Glowing border card */
   .tech-card {
     @apply relative bg-card rounded-lg overflow-hidden;
-    background: linear-gradient(135deg, hsl(220 40% 12%) 0%, hsl(220 40% 8%) 100%);
+    background: linear-gradient(135deg, hsl(220 30% 18%) 0%, hsl(220 30% 14%) 100%);
     border: 1px solid hsl(var(--border));
     box-shadow: 
-      0 0 20px hsl(var(--glow-primary) / 0.1),
-      inset 0 1px 0 hsl(200 100% 90% / 0.05);
+      0 0 25px hsl(var(--glow-primary) / 0.08),
+      inset 0 1px 0 hsl(200 80% 90% / 0.08);
   }
 
   .tech-card::before {
