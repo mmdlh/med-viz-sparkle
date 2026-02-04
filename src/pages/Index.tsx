@@ -16,7 +16,7 @@ const Index = () => {
         <div className="animate-fade-in" style={{ animationDelay: "0ms" }}>
           <StatCard
             title="今日门诊"
-            value={3847}
+            value={1847}
             suffix="人"
             icon={Users}
             trend={{ value: 12.5, isPositive: true }}
